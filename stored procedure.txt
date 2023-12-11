@@ -1,0 +1,40 @@
+
+
+DELIMITER //
+CREATE PROCEDURE GetProductsByPromotion(
+    IN p_PromotionID INT
+)
+BEGIN
+    SELECT p.*
+    FROM PRODUCT p
+    JOIN PROMOTEPRODUCT pp ON p.ProductID = pp.ProductID
+    WHERE pp.PromotionID = p_PromotionID;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE GetProductsByStoreID(
+    IN p_StoreID INT
+)
+BEGIN
+    SELECT p.*
+    FROM PRODUCT p
+    JOIN AT a ON p.ProductID = a.ProductID
+    WHERE a.StoreID = p_StoreID;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE GetItemsByTransactionID(
+    IN p_TransactionID INT
+)
+BEGIN
+    SELECT p.*,
+           ib.NumberOfProductInBill
+    FROM PRODUCT p
+    JOIN INCLUDE ib ON p.ProductID = ib.ProductID
+    WHERE ib.TransactionID = p_TransactionID;
+END //
+DELIMITER ;
+
+

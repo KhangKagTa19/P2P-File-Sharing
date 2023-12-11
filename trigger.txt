@@ -1,0 +1,117 @@
+DELIMITER //
+CREATE TRIGGER check_vehicle_capacity
+BEFORE INSERT ON TAKINGORDERING
+FOR EACH ROW
+BEGIN
+    DECLARE v_capacity INT;
+    SELECT VehicleCapacity INTO v_capacity FROM SHIPPER WHERE ShipperID = NEW.ShipperID;
+
+    IF v_capacity < (SELECT COUNT(*) FROM INCLUDE WHERE TransactionID = NEW.TransactionID) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Vehicle capacity exceeded for the shipper.';
+    END IF;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER update_number_at_store
+AFTER INSERT ON INCLUDE
+FOR EACH ROW
+BEGIN
+    UPDATE AT
+    SET NumberAtStore = NumberAtStore - NEW.NumberOfProductInBill
+    WHERE ProductID = NEW.ProductID AND StoreID = (SELECT StoreID FROM BILL WHERE TransactionID = NEW.TransactionID);
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER update_total_price
+BEFORE INSERT ON INCLUDE
+FOR EACH ROW
+BEGIN
+    DECLARE total_price DECIMAL(10, 2);
+    SELECT SUM(p.Price * i.NumberOfProductInBill)
+    INTO total_price
+    FROM PRODUCT p
+    JOIN INCLUDE i ON p.ProductID = i.ProductID
+    WHERE i.TransactionID = NEW.TransactionID;
+
+    UPDATE BILL
+    SET TotalPrice = total_price
+    WHERE TransactionID = NEW.TransactionID;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER check_employee_salary
+BEFORE INSERT ON EMPLOYEE
+FOR EACH ROW
+BEGIN
+    IF NEW.Salary < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Employee salary cannot be negative.';
+    END IF;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER check_product_weight
+BEFORE INSERT ON PRODUCT
+FOR EACH ROW
+BEGIN
+    IF NEW.Weight < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Product weight cannot be negative.';
+    END IF;
+END //
+DELIMITER ;
+
+
+DELIMITER //
+CREATE TRIGGER enforce_store_manager_assignment
+BEFORE INSERT ON STORE_MANAGER
+FOR EACH ROW
+BEGIN
+    IF (SELECT COUNT(*) FROM STORE_MANAGER WHERE StoreID = NEW.StoreID) > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Each store can have only one manager.';
+    END IF;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER update_promotion_end_day
+BEFORE UPDATE ON PROMOTION
+FOR EACH ROW
+BEGIN
+    IF NEW.EndDay < NEW.StartDay THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Promotion end day cannot be earlier than the start day.';
+    END IF;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER enforce_unique_product_names
+BEFORE INSERT ON PRODUCT
+FOR EACH ROW
+BEGIN
+    IF (SELECT COUNT(*) FROM PRODUCT WHERE PName = NEW.PName AND Category = NEW.Category) > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Product names must be unique within the same category.';
+    END IF;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER enforce_non_negative_product_price
+BEFORE INSERT OR UPDATE ON PRODUCT
+FOR EACH ROW
+BEGIN
+    IF NEW.Price < 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Product price cannot be negative.';
+    END IF;
+END //
+DELIMITER ;
+

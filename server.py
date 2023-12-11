@@ -11,7 +11,7 @@ class FileServer:
     def __init__(self, host, port, log_callback=None):
         self.host = host
         self.port = port
-        self.clients = {}  # {client_address: {"hostname": hostname, "files": [list of files]}}
+        self.clients = {}  # {client_address: {"hostname": hostname,"status": ?, "files": [{"local_name": local_name, "file_name": file_name}]}}
         self.lock = threading.Lock()  # To synchronize access to shared data
         self.is_running = True  # Flag to control server running state
         self.log_callback = log_callback
@@ -103,8 +103,9 @@ class FileServer:
         else:
             self.log(f"Unknown server command: {command}")
 
-    # publish:
-    # lname and fname, add to the files section in client dictionary
+##############################################################################################################
+############   MAIN PUBLISH ####################################################################################
+##############################################################################################################
     def publish(self, client_address, local_name, file_name):
         with self.lock:
             if client_address in self.clients:
@@ -115,6 +116,7 @@ class FileServer:
 
     # fetch:
     # find fname, if found: return found client and send response to client
+########{client_address: {"hostname": hostname,"status": ?, "files": [{"local_name": local_name, "file_name": file_name}]}}###########
     def fetch(self, client_socket, requesting_client, file_name):
         with self.lock:
             found_client = next(((addr, data["files"]) for addr, data in self.clients.items() if any(file["file_name"] == file_name for file in data["files"])), None)
@@ -178,7 +180,7 @@ class FileServer:
     def server_discover(self, hostname):
         with self.lock:
             found_clients = {addr: data["files"] for addr, data in self.clients.items() if data["hostname"] == hostname}
-
+        
         if found_clients:
             response = f"Files on hosts with hostname '{hostname}': {found_clients}"
         else:

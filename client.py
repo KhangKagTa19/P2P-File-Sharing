@@ -98,31 +98,13 @@ class FileClient:
             data = json.loads(raw_data)
             print(data)
             if data["type"] == "ping":
-                client_socket.send(json.dumps({"type": "pong"}).encode("utf-8"))
+                client_socket.send(json.dumps({"type": "is_live"}).encode("utf-8"))
                 client_socket.close()
                 break
             status = self.send_file(client_socket, data["local_name"])
 
 
-    def send_file(self, client_socket, local_name):
-        if not os.path.exists(local_name) or not os.path.isfile(local_name):
-            reply = {"status" : "Error"}
-            # reply.update({"status" : "Error"})
-            self.socket.send(json.dumps(reply).encode())
-            raise FileNotFoundError(f"{local_name} is not available")
-        fname = os.path.split(local_name)[-1]    
-        length = os.path.getsize(local_name)  
-        reply = {"status" : "available", "length" : length, "file" : fname}
-        reply.update({"status" : "available", "length" : length, "file" : fname})
-        client_socket.send(json.dumps(reply).encode())
-        print(f"currently at send file {reply}")
-        with open(local_name, "rb") as file:
-            offset = 0
-            while offset < length:
-                data = file.read(1024)
-                offset += len(data)
-                client_socket.send(data)
-        return True
+    
 
     def init_hostname(self, client_socket, hostname):
         self.hostname = hostname
@@ -130,21 +112,11 @@ class FileClient:
         data = json.loads(client_socket.recv(1024).decode("utf-8"))
         if not data:
             return None
-        # while data["status"] == "error":
-        #     print(data["message"])
-        #     self.hostname = input("Enter your unique hostname: ")
-        #     self.send_hostname(client_socket)
-        #     data = json.loads(client_socket.recv(1024).decode("utf-8"))
-        #     if not data:
-        #         break
-        #     if data["status"] == "success":
-        #         break
         if data["status"] == "error":
             self.log(data["message"])
             return None
         address = data["address"]
         address = (address[0], int(address[1]))
-        # self.start_listener(address)
         return address
     
     def process_command(self, client_socket, command):
@@ -177,42 +149,14 @@ class FileClient:
 
         return True
 
+    
+##############################################################################################################
+############   MAIN FETCH ####################################################################################
+##############################################################################################################
     def fetch(self, client_socket, file_name):
         command = f"fetch {file_name}"
         client_socket.send(command.encode("utf-8"))
-
-    def handle_fetch_sources(self, client_socket, data):
-        sources_data = data["source"]
-        print(f"{data}")
-        print(sources_data)
-        local_name = sources_data["local_name"]
-        address = sources_data["address"]
-        address = (address[0], int(address[1]))
-
-        # Automatically initiate P2P connection to the source
-        target_socket = self.p2p_connect(address)
-        # print(target_socket)
-        if target_socket:
-            fetch_status = self.download_file(target_socket, local_name)
-            if fetch_status == True:
-                self.log("Fetch successfully!")
-            target_socket.close()
-
-    def quit(self, client_socket):
-        self.stop_threads = True  # Set the flag to stop threads
-        with self.lock:
-            command = "quit"
-            client_socket.send(command.encode("utf-8"))
-        client_socket.close()
-        if hasattr(self, 'listener_socket'):
-            self.listener_socket.close()
-        print("Client connection closed. Exiting.")
-        sys.exit(0)
-
-    def send_hostname(self, client_socket):
-        command = f"hostname {self.hostname}"
-        client_socket.send(command.encode("utf-8"))
-
+        
     def p2p_connect(self, target_address):
         try:
             target_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -241,6 +185,60 @@ class FileClient:
                 file.write(recved)
                 offset += 1024
         return True
+    
+    def send_file(self, client_socket, local_name):
+        if not os.path.exists(local_name) or not os.path.isfile(local_name):
+            reply = {"status" : "Error"}
+            self.client_socket.send(json.dumps(reply).encode())
+            raise FileNotFoundError(f"{local_name} is not available")
+        fname = os.path.split(local_name)[-1]    
+        length = os.path.getsize(local_name)  
+        reply = {"status" : "available", "length" : length, "file" : fname  }
+        reply.update({"status" : "available", "length" : length, "file" : fname})
+        client_socket.send(json.dumps(reply).encode())
+        print(f"currently at send file {reply}")
+        with open(local_name, "rb") as file:
+            offset = 0
+            while offset < length:
+                data = file.read(1024)
+                offset += len(data)
+                client_socket.send(data)
+        return True
+        
+    def handle_fetch_sources(self, client_socket, data):
+        sources_data = data["source"]
+        print(f"{data}")
+        print(sources_data)
+        local_name = sources_data["local_name"]
+        address = sources_data["address"]
+        address = (address[0], int(address[1]))
+
+        # Automatically initiate P2P connection to the source
+        target_socket = self.p2p_connect(address)
+        # print(target_socket)
+        if target_socket:
+            fetch_status = self.download_file(target_socket, local_name)
+            if fetch_status == True:
+                self.log("Fetch successfully!")
+            target_socket.close()
+##############################################################################################################
+##############################################################################################################
+    def quit(self, client_socket):
+        self.stop_threads = True  # Set the flag to stop threads
+        with self.lock:
+            command = "quit"
+            client_socket.send(command.encode("utf-8"))
+        client_socket.close()
+        if hasattr(self, 'listener_socket'):
+            self.listener_socket.close()
+        print("Client connection closed. Exiting.")
+        sys.exit(0)
+
+    def send_hostname(self, client_socket):
+        command = f"hostname {self.hostname}"
+        client_socket.send(command.encode("utf-8"))
+
+
 
 # if __name__ == "__main__":
 #     client = FileClient()

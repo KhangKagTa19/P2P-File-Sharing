@@ -1,0 +1,18 @@
+INSERT INTO EMPLOYEE (EmployeeID, FirstName, Salary, LastName, Address, StoreID)
+VALUES
+    (001001, 'Nguyễn', 8000000.00, 'Thị Thuý An', '123, Đường Lê Lai, Phường 10, Quận 1, Thành phố Hồ Chí Minh', 1),
+    (001002, 'Trần', 9000000.00, 'Văn Thành', '456, Đường Trần Hưng Đạo, Phường 5, Quận 1, Thành phố Hồ Chí Minh', 1),
+    (001003, 'Lê', 10000000.00, 'Hồng Nhung', '789, Đường Nguyễn Du, Phường 10, Quận 1, Thành phố Hồ Chí Minh', 1),
+    (002001, 'Phạm', 8000000.00, 'Duy Khánh', '123, Đường 3/2, Phường 4, Quận 3, Thành phố Hồ Chí Minh', 1),
+    (002002, 'Hoàng', 9000000.00, 'Ngọc Hà', '456, Đường Nguyễn Văn Linh, Phường 8, Quận 5, Thành phố Hồ Chí Minh', 1),
+    (002003, 'Vũ', 10000000.00, 'Hải Đăng', '789, Đường Lê Duẩn, Phường 2, Quận 12, Thành phố Hồ Chí Minh', 1),
+    (003001, 'Phan', 8000000.00, 'Văn Đức', '123, Đường Văn Cao, Phường 9, Quận 6, Thành phố Hồ Chí Minh', 2),
+    (003002, 'Trương', 9000000.00, 'Thị Mai', '456, Đường Nguyễn Lương Bằng, Phường 9, Quận 7, Thành phố Hồ Chí Minh', 2),
+    (003003, 'Bùi', 10000000.00, 'Hồng Phúc', '789, Đường Nguyễn Hữu Thọ, Phường 9, Quận 12, Thành phố Hồ Chí Minh', 2),
+    (004001, 'Đặng', 8000000.00, 'Đức Anh', '123, Đường Lê Trọng Tấn, Phường 5, Quận 4, Thành phố Hồ Chí Minh', 2),
+    (004002, 'Đỗ', 9000000.00, 'Hải Yến', '456, Đường Hoàng Cầu, Phường 3, Quận 2, Thành phố Hồ Chí Minh', 2),
+    (004003, 'Ngô', 10000000.00, 'Văn Hùng', '789, Đường Nguyễn Trãi, Phường 6, Quận 8, Thành phố Hồ Chí Minh', 2),
+    (005001, 'Hồ', 8000000.00, 'Anh Tuấn', '123, Đường Trần Phú, Phường 10, Quận 10, Thành phố Hồ Chí Minh', 2),
+    (005002, 'Dương', 9000000.00, 'Thu Hương', '456, Đường Minh Khai, Phường 7, Quận 11, Thành phố Hồ Chí Minh', 2),
+    (005003, 'Đinh', 10000000.00, 'Duyên Anh', '789, Đường Lê Văn Lương, Phường 2, Quận 2, Thành phố Hồ Chí Minh', 2)
+;

@@ -14,8 +14,8 @@ class FileClientGUI:
 
         # Configure Style
         self.style = ttk.Style()
-        self.style.configure("TButton", padding=(10, 5), font=('Helvetica', 10))
-        self.style.configure("TLabel", font=('Helvetica', 12))
+        self.style.configure("TButton", padding=(10, 5), font=('Helvetica', 10), background='#2ecc71', foreground='#2ecc71')
+        self.style.configure("TLabel", font=('Helvetica', 12), background='#E5E5E5')
         self.style.configure("TEntry", font=('Helvetica', 10))
         self.style.configure("TFrame", background='#E5E5E5')
 
@@ -72,7 +72,7 @@ class FileClientGUI:
 
         # Quit Button
         quit_button = ttk.Button(self.commands_frame, text="Quit", command=self.quit_client, style="TButton")
-        quit_button.grid(row=2, column=0, columnspan=5, pady=10)
+        quit_button.grid(row=2, column=0, columnspan=5, pady=10, sticky=tk.W + tk.E)
 
     def init_hostname(self):
         hostname = self.hostname_entry.get()
@@ -128,7 +128,6 @@ class FileClientGUI:
     def log(self, message):
         self.log_box.insert(tk.END, message + "\n")
         self.log_box.see(tk.END)
-
 
 if __name__ == "__main__":
     gui = FileClientGUI()
