@@ -71,5 +71,5 @@ class ServerGUI:
         self.log_text.yview(tk.END)
 
 if __name__ == "__main__":
-    gui = ServerGUI("10.130.221.139", 3308)
+    gui = ServerGUI("172.168.98.196", 3308)
     gui.root.mainloop()

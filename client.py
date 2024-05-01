@@ -6,7 +6,7 @@ import json
 
 class FileClient:
     def __init__(self, log_callback=None):
-        self.server_host = "10.130.221.139"
+        self.server_host = "172.168.98.196"
         self.server_port = 3308
         self.local_files = {}  # {file_name: file_path}
         self.lock = threading.Lock()  # To synchronize access to shared data
@@ -174,7 +174,7 @@ class FileClient:
         
         data = json.loads(target_socket.recv(1024).decode())
         print(f"currently at download file {data}")
-        fname = data["file"] + "_fetch"
+        fname = data["file"] 
         length = data["length"]
         if data["status"] == "Error":
             raise ConnectionAbortedError("File is not available")
